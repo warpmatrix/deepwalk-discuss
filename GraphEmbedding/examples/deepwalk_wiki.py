@@ -9,9 +9,13 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from sklearn.manifold import TSNE
 
+edgeListFile = '../data/wiki/Wiki_edgelist.txt'
+# edgeListFile = '../data/flight/usa-airports.edgelist'
+labelFile = '../data/wiki/wiki_labels.txt'
+# labelFile = '../data/flight/labels-usa-airports.txt'
 
 def evaluate_embeddings(embeddings):
-    X, Y = read_node_label('../data/wiki/wiki_labels.txt')
+    X, Y = read_node_label(labelFile)
     tr_frac = 0.8
     print("Training classifier using {:.2f}% nodes...".format(
         tr_frac * 100))
@@ -20,7 +24,7 @@ def evaluate_embeddings(embeddings):
 
 
 def plot_embeddings(embeddings,):
-    X, Y = read_node_label('../data/wiki/wiki_labels.txt')
+    X, Y = read_node_label(labelFile)
 
     emb_list = []
     for k in X:
@@ -42,7 +46,7 @@ def plot_embeddings(embeddings,):
 
 
 if __name__ == "__main__":
-    G = nx.read_edgelist('../data/wiki/Wiki_edgelist.txt',
+    G = nx.read_edgelist(edgeListFile,
                          create_using=nx.DiGraph(), nodetype=None, data=[('weight', int)])
 
     model = DeepWalk(G, walk_length=10, num_walks=80, workers=1)

@@ -3,6 +3,7 @@ import math
 import random
 
 import numpy as np
+from numpy.core.fromnumeric import ravel
 import pandas as pd
 from joblib import Parallel, delayed
 from tqdm import trange
@@ -32,10 +33,44 @@ class RandomWalker:
             cur = walk[-1]
             cur_nbrs = list(self.G.neighbors(cur))
             if len(cur_nbrs) > 0:
-                walk.append(random.choice(cur_nbrs))
+                idx = self.chooseByLargeDeg(cur_nbrs)
+                # idx = self.chooseBySmallDeg(cur_nbrs)
+                nextnode = cur_nbrs[idx]
+
+                # 随机选取邻居节点
+                # nextnode = random.choice(cur_nbrs)
+                walk.append(nextnode)
             else:
                 break
         return walk
+
+    # 度数大的邻居优先选取
+    def chooseByLargeDeg(self, cur_nbrs):
+        nbrDegs = []
+        degSum = 0
+        for neibor in cur_nbrs:
+            nbrDeg = len(list(self.G.neighbors(neibor)))
+            nbrDegs.append(nbrDeg)
+            degSum = degSum + nbrDeg
+        for i in range(0, len(nbrDegs)):
+            nbrDegs[i] = nbrDegs[i] / degSum
+        p = np.array(nbrDegs)
+        idx = np.random.choice([x for x in range(0, len(cur_nbrs))], p=p.ravel())
+        return idx
+
+    # 优先选择度数小的邻居
+    def chooseBySmallDeg(self, cur_nbrs):
+        nbrDegs = []
+        degSum = 0
+        for neibor in cur_nbrs:
+            nbrDeg = len(list(self.G.neighbors(neibor)))
+            nbrDegs.append(nbrDeg)
+            degSum = degSum + nbrDeg
+        for i in range(0, len(nbrDegs)):
+            nbrDegs[i] = 1 - nbrDegs[i] / degSum
+        p = np.array(nbrDegs)
+        idx = np.random.choice([x for x in range(0, len(cur_nbrs))], p=p.ravel())
+        return idx
 
     def node2vec_walk(self, walk_length, start_node):
 
