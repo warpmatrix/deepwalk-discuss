@@ -1,0 +1,40 @@
+\documentclass{ctexart}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{bottom=2cm} 
+\ctexset { section = { format={\Large \bfseries } } }
+\bibliographystyle{unsrt}
+
+\begin{document}
+\input{content/cover.tex}
+
+\tableofcontents
+\newpage
+
+\section{section 1}
+
+
+\section{MapReduce 中的容错机制}
+
+
+\subsection{编程模型}
+
+% 具体的执行框架如图\ref{fig: exec-overview} 所示。
+
+% \begin{figure}
+%     \centering]
+%     \includegraphics[width=8cm]{image/exec-overview.png}
+%     \caption{MapReduce: Execution overview}
+%     \label{fig: exec-overview}
+% \end{figure}
+
+% \begin{itemize}
+%     \item RDD 和其他日志一样，只能进行读操作，不能被直接修改。只能通过 transform 操作创建新的 RDD 对象。
+%     \item RDD 基于内存进行操作，可以全部或部分存储在内存当中，并且 RDD 可以在多次计算中反复重用，实现利用内存实现低延时的计算。
+%     \item 同时，当内存不足时，RDD 和正常使用的计算机数据一样具有弹性的特点，计算的过程中可以和磁盘进行数据交换保证节点有足够大小的内存进行计算。
+%     \item RDD 可以具有分布式的特点。它可以保存在集群中的不同节点，从而进行并行计算。
+% \end{itemize}
+
+\bibliography{reference}
+\end{document}
