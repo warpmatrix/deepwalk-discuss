@@ -8,14 +8,14 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from sklearn.manifold import TSNE
 
-# edgeListFile = 'GraphEmbedding/data/wiki/Wiki_edgelist.txt'
-# labelFile = 'GraphEmbedding/data/wiki/wiki_labels.txt'
+edgeListFile = 'GraphEmbedding/data/wiki/Wiki_edgelist.txt'
+labelFile = 'GraphEmbedding/data/wiki/wiki_labels.txt'
 # edgeListFile = 'GraphEmbedding/data/flight/brazil-airports.edgelist'
 # labelFile = 'GraphEmbedding/data/flight/labels-brazil-airports.txt'
 # edgeListFile = 'GraphEmbedding/data/flight/europe-airports.edgelist'
 # labelFile = 'GraphEmbedding/data/flight/labels-europe-airports.txt'
-edgeListFile = 'GraphEmbedding/data/flight/usa-airports.edgelist'
-labelFile = 'GraphEmbedding/data/flight/labels-usa-airports.txt'
+# edgeListFile = 'GraphEmbedding/data/flight/usa-airports.edgelist'
+# labelFile = 'GraphEmbedding/data/flight/labels-usa-airports.txt'
 
 def evaluate_embeddings(embeddings):
     X, Y = read_node_label(labelFile)
