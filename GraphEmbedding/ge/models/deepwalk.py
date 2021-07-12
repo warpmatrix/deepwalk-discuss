@@ -29,8 +29,7 @@ class DeepWalk:
         self.w2v_model = None
         self._embeddings = {}
 
-        self.walker = RandomWalker(
-            graph, p=1, q=1, )
+        self.walker = RandomWalker(graph, p=1, q=1)
         self.sentences = self.walker.simulate_walks(
             num_walks=num_walks, walk_length=walk_length, workers=workers, verbose=1)
 
