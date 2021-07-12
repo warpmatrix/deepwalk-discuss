@@ -33,8 +33,8 @@ class RandomWalker:
             cur = walk[-1]
             cur_nbrs = list(self.G.neighbors(cur))
             if len(cur_nbrs) > 0:
-                idx = self.chooseByLargeDeg(cur_nbrs)
-                # idx = self.chooseBySmallDeg(cur_nbrs)
+                # idx = self.chooseByLargeDeg(cur_nbrs)
+                idx = self.chooseBySmallDeg(cur_nbrs)
                 nextnode = cur_nbrs[idx]
 
                 # 随机选取邻居节点
@@ -44,14 +44,18 @@ class RandomWalker:
                 break
         return walk
 
-    # 度数大的邻居优先选取
-    def chooseByLargeDeg(self, cur_nbrs):
+    def getNbrDegs(self, cur_nbrs):
         nbrDegs = []
         degSum = 0
         for neibor in cur_nbrs:
             nbrDeg = len(list(self.G.neighbors(neibor)))
             nbrDegs.append(nbrDeg)
             degSum = degSum + nbrDeg
+        return nbrDegs,degSum
+
+    # 度数大的邻居优先选取
+    def chooseByLargeDeg(self, cur_nbrs):
+        nbrDegs, degSum = self.getNbrDegs(cur_nbrs)
         for i in range(0, len(nbrDegs)):
             nbrDegs[i] = nbrDegs[i] / degSum
         p = np.array(nbrDegs)
@@ -60,17 +64,47 @@ class RandomWalker:
 
     # 优先选择度数小的邻居
     def chooseBySmallDeg(self, cur_nbrs):
-        nbrDegs = []
-        degSum = 0
-        for neibor in cur_nbrs:
-            nbrDeg = len(list(self.G.neighbors(neibor)))
-            nbrDegs.append(nbrDeg)
-            degSum = degSum + nbrDeg
-        for i in range(0, len(nbrDegs)):
-            nbrDegs[i] = 1 - nbrDegs[i] / degSum
-        p = np.array(nbrDegs)
+        nbrDegs, degSum = self.getNbrDegs(cur_nbrs)
+        p = self.smallDeg1(nbrDegs, degSum)
+        # p = self.smallDeg2(nbrDegs, degSum)
+        # p = self.smallDeg3(nbrDegs, degSum)
         idx = np.random.choice([x for x in range(0, len(cur_nbrs))], p=p.ravel())
         return idx
+
+    # 使用 2 - frac 的函数进行映射
+    def smallDeg1(self, nbrDegs, degSum):
+        p = []
+        tmp = 0
+        for i in range(0, len(nbrDegs)):
+            p.append(2 - nbrDegs[i] / degSum)
+            tmp = tmp + p[i]
+        for i in range(0, len(p)):
+            p[i] = p[i] / tmp
+        return np.array(p)
+
+    # 使用 1 - frac 的函数进行映射
+    def smallDeg2(self, nbrDegs, degSum):
+        if len(nbrDegs) == 1:
+            return np.array([1])
+        p = []
+        tmp = 0
+        for i in range(0, len(nbrDegs)):
+            p.append(1 - nbrDegs[i] / degSum)
+            tmp = tmp + p[i]
+        for i in range(0, len(p)):
+            p[i] = p[i] / tmp
+        return np.array(p)
+
+    # 使用度数的导数进行映射
+    def smallDeg3(self, nbrDegs, degSum):
+        p = []
+        tmp = 0
+        for i in range(0, len(nbrDegs)):
+            p.append(degSum / nbrDegs[i])
+            tmp = tmp + p[i]
+        for i in range(0, len(p)):
+            p[i] = p[i] / tmp
+        return np.array(p)
 
     def node2vec_walk(self, walk_length, start_node):
 
