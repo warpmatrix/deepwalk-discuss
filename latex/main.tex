@@ -2,6 +2,7 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{geometry}
+\usepackage{amsfonts}
 \geometry{bottom=2cm} 
 \ctexset { section = { format={\Large \bfseries } } }
 \bibliographystyle{unsrt}
@@ -12,15 +13,62 @@
 \tableofcontents
 \newpage
 
-\section{section 1}
+\section{引言}
+
+\subsection{研究基于 DeepWalk 图嵌入算法的背景和意义}
+
+众所周知，图是一种基础且常用的数据结构，广泛地存在于各种现实应用中，如社交网络、交通网络和通信网络。通过对它们的分析，我们可以深入了解社会结构、语言和不同的交流模式，因此图一直是学界研究的热点。
+
+图分析任务可以大致分为以下四类：（a）节点分类，（b）链路预测，（c）聚类，以及（d）可视化\cite{goyal2018graph}。其中，节点分类旨在基于其他标记的节点和网络拓扑来确定节点的标签。链路预测是指预测缺失链路或未来可能出现的链路。聚类用于将相似节点聚合在一起。可视化有助于深入了解网络结构。
+
+图嵌入技术将图中的节点以低维稠密向量的形式进行表示，要求在原始图中相似的节点其在低维特征空间也接近。
+
+虽然 DeepWalk 是 KDD 2014 的工作，但却是我们了解图嵌入无法绕过的一个方法。DeepWalk 创造性地将词嵌入方法 word2vec 引入到图嵌入中，通过随机游走的策略提取节点序列，得到节点和节点的共现关系，再用 word2vec 模型学习节点的向量表示。
+
+\subsection{问题描述}
+
+对于图 $G=(V,E)$，节点集合 $V=\{v_1,\dots,v_n\}$，边集合$ E=\{ e_{ij} \}_{i,j=1}^n $。图嵌入是图节点的映射，映射$f$在将节点映射到低维特征向量的同时，尝试保留节点之间的拓扑信息。
+
+$$
+f:v_i \to y_i \in \mathbb{R}^d, \;\forall i \in[1,n],\;where\; d \ll |V|
+$$
+
+DeepWalk 使用的随机游走策略将在当前节点的邻居中等概率地选择下一个要访问节点，这实际上仅利用了节点之间的连接信息来提取节点序列，在拓扑信息的保留上还不够全面。
+
+\subsection{本文工作}
+
+我们尝试改进了 DeepWalk中节点序列的提取，根据节点以及连接之间更多的信息来指导节点的选择：
+
+\begin{itemize}
+    \item 根据采样节点与起始节点的距离，调整返回上一节点的概率。
+    \item 根据采样节点的邻居的度数，调整选择该邻居作为下一节点的概率。
+\end{itemize}
+
+\subsection{论文结构简介}
+本文的其余部分安排如下。在第二节中，我们将介绍图嵌入算法的发展和DeepWalk图嵌入算法的原理。在第三节中，我们将讲述对于DeepWalk的改进。在第四节中，我们将展示和分析实验结果。在第五节中，我们将做出总结并给出未来的改进方向。
+
+\section{相关工作陈述}
+
+\subsection{图嵌入算法的发展}
+
+在过去的十年里，在图嵌入领域已经有了大量的研究，重点是设计新的嵌入算法。发展到现在，大体上可以将这些嵌入方法分为三大类：（1）基于因子分解的方法，（2）基于随机游走的方法，以及（3）基于深度学习的方法\cite{goyal2018graph}。
 
 
-\section{MapReduce 中的容错机制}
+
+\subsection{DeepWalk图嵌入算法}
 
 
-\subsection{编程模型}
+\section{基于 DeepWalk 图嵌入算法的改进}
 
-% 具体的执行框架如图\ref{fig: exec-overview} 所示。
+
+\section{实验结果与分析}
+
+\section{总结与展望}
+
+
+
+\bibliography{reference}
+\end{document}
 
 % \begin{figure}
 %     \centering]
@@ -35,6 +83,3 @@
 %     \item 同时，当内存不足时，RDD 和正常使用的计算机数据一样具有弹性的特点，计算的过程中可以和磁盘进行数据交换保证节点有足够大小的内存进行计算。
 %     \item RDD 可以具有分布式的特点。它可以保存在集群中的不同节点，从而进行并行计算。
 % \end{itemize}
-
-\bibliography{reference}
-\end{document}
