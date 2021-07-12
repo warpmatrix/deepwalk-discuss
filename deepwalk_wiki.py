@@ -1,18 +1,21 @@
-
 import numpy as np
 
-from ge.classify import read_node_label, Classifier
-from ge import DeepWalk
+from GraphEmbedding.ge.classify import read_node_label, Classifier
+from GraphEmbedding.ge import DeepWalk
 from sklearn.linear_model import LogisticRegression
 
 import matplotlib.pyplot as plt
 import networkx as nx
 from sklearn.manifold import TSNE
 
-edgeListFile = '../data/wiki/Wiki_edgelist.txt'
-# edgeListFile = '../data/flight/usa-airports.edgelist'
-labelFile = '../data/wiki/wiki_labels.txt'
-# labelFile = '../data/flight/labels-usa-airports.txt'
+# edgeListFile = 'GraphEmbedding/data/wiki/Wiki_edgelist.txt'
+# labelFile = 'GraphEmbedding/data/wiki/wiki_labels.txt'
+# edgeListFile = 'GraphEmbedding/data/flight/brazil-airports.edgelist'
+# labelFile = 'GraphEmbedding/data/flight/labels-brazil-airports.txt'
+# edgeListFile = 'GraphEmbedding/data/flight/europe-airports.edgelist'
+# labelFile = 'GraphEmbedding/data/flight/labels-europe-airports.txt'
+edgeListFile = 'GraphEmbedding/data/flight/usa-airports.edgelist'
+labelFile = 'GraphEmbedding/data/flight/labels-usa-airports.txt'
 
 def evaluate_embeddings(embeddings):
     X, Y = read_node_label(labelFile)
@@ -47,7 +50,7 @@ def plot_embeddings(embeddings,):
 
 if __name__ == "__main__":
     G = nx.read_edgelist(edgeListFile,
-                         create_using=nx.DiGraph(), nodetype=None, data=[('weight', int)])
+                         create_using=nx.Graph(), nodetype=None, data=[('weight', int)])
 
     model = DeepWalk(G, walk_length=10, num_walks=80, workers=1)
     model.train(window_size=5, iter=3)
