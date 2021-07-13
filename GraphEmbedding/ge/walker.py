@@ -33,40 +33,37 @@ class RandomWalker:
             cur = walk[-1]
             cur_nbrs = list(self.G.neighbors(cur))
             if len(cur_nbrs) > 0:
-                if len(walk) == 1:
-                    nextnode = random.choice(cur_nbrs)
-                else:
-                    probs = []
-                    prev = walk[-2]
-                    p = (len(walk)) / (len(cur_nbrs) + len(walk) - 1)
-                    for i in range(0, len(cur_nbrs)):
-                        if cur_nbrs[i] == prev:
-                            probs.append(p)
-                        else:
-                            probs.append((1 - p) / (len(cur_nbrs) - 1))
-                    probs = np.array(probs)
-                    idx = np.random.choice([x for x in range(0, len(cur_nbrs))], p=probs.ravel())
-                    nextnode = cur_nbrs[idx]
+
+                # nextnode = self.chooseByLargeDeg(cur_nbrs)
+
+                # nextnode = self.chooseBySmallDeg(cur_nbrs)
+
+                # 依据路径长度调整往回走的概率
+                nextnode = self.modifyByPath(walk, cur_nbrs)
+
+                # 随机选取邻居节点
+                # nextnode = random.choice(cur_nbrs)
                 walk.append(nextnode)
             else:
                 break
-
-        # 与路径无关的走法
-        # while len(walk) < walk_length:
-        #     cur = walk[-1]
-        #     cur_nbrs = list(self.G.neighbors(cur))
-        #     if len(cur_nbrs) > 0:
-        #         # idx = self.chooseByLargeDeg(cur_nbrs)
-        #         # idx = self.chooseBySmallDeg(cur_nbrs)
-
-        #         nextnode = cur_nbrs[idx]
-
-        #         # 随机选取邻居节点
-        #         # nextnode = random.choice(cur_nbrs)
-        #         walk.append(nextnode)
-        #     else:
-        #         break
         return walk
+
+    def modifyByPath(self, walk, cur_nbrs):
+        if len(walk) == 1:
+            nextnode = random.choice(cur_nbrs)
+        else:
+            probs = []
+            prev = walk[-2]
+            p = (len(walk)) / (len(cur_nbrs) + len(walk) - 1)
+            for i in range(0, len(cur_nbrs)):
+                if cur_nbrs[i] == prev:
+                    probs.append(p)
+                else:
+                    probs.append((1 - p) / (len(cur_nbrs) - 1))
+            probs = np.array(probs)
+            idx = np.random.choice([x for x in range(0, len(cur_nbrs))], p=probs.ravel())
+            nextnode = cur_nbrs[idx]
+        return nextnode
 
     def getNbrDegs(self, cur_nbrs):
         nbrDegs = []
@@ -84,7 +81,7 @@ class RandomWalker:
             nbrDegs[i] = nbrDegs[i] / degSum
         p = np.array(nbrDegs)
         idx = np.random.choice([x for x in range(0, len(cur_nbrs))], p=p.ravel())
-        return idx
+        return cur_nbrs[idx]
 
     # 优先选择度数小的邻居
     def chooseBySmallDeg(self, cur_nbrs):
@@ -93,7 +90,7 @@ class RandomWalker:
         # p = self.smallDeg2(nbrDegs, degSum)
         # p = self.smallDeg3(nbrDegs, degSum)
         idx = np.random.choice([x for x in range(0, len(cur_nbrs))], p=p.ravel())
-        return idx
+        return cur_nbrs[idx]
 
     # 使用 2 - frac 的函数进行映射
     def smallDeg1(self, nbrDegs, degSum):

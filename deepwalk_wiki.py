@@ -52,9 +52,10 @@ if __name__ == "__main__":
     G = nx.read_edgelist(edgeListFile,
                          create_using=nx.Graph(), nodetype=None, data=[('weight', int)])
 
-    model = DeepWalk(G, walk_length=10, num_walks=80, workers=1)
-    model.train(window_size=5, iter=3)
-    embeddings = model.get_embeddings()
+    for i in range(0, 10):
+        model = DeepWalk(G, walk_length=10, num_walks=80, workers=3)
+        model.train(window_size=5, iter=3)
+        embeddings = model.get_embeddings()
 
-    evaluate_embeddings(embeddings)
-    plot_embeddings(embeddings)
+        evaluate_embeddings(embeddings)
+        plot_embeddings(embeddings)
