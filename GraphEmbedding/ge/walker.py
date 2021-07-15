@@ -39,10 +39,10 @@ class RandomWalker:
                 # nextnode = self.chooseBySmallDeg(cur_nbrs)
 
                 # 依据路径长度调整往回走的概率
-                nextnode = self.modifyByPath(walk, cur_nbrs)
+                # nextnode = self.modifyByPath(walk, cur_nbrs)
 
                 # 随机选取邻居节点
-                # nextnode = random.choice(cur_nbrs)
+                nextnode = random.choice(cur_nbrs)
                 walk.append(nextnode)
             else:
                 break

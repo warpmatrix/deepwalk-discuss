@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from sklearn.manifold import TSNE
 
-edgeListFile = 'GraphEmbedding/data/wiki/Wiki_edgelist.txt'
-labelFile = 'GraphEmbedding/data/wiki/wiki_labels.txt'
+# edgeListFile = 'GraphEmbedding/data/wiki/Wiki_edgelist.txt'
+# labelFile = 'GraphEmbedding/data/wiki/wiki_labels.txt'
 # edgeListFile = 'GraphEmbedding/data/flight/brazil-airports.edgelist'
 # labelFile = 'GraphEmbedding/data/flight/labels-brazil-airports.txt'
-# edgeListFile = 'GraphEmbedding/data/flight/europe-airports.edgelist'
-# labelFile = 'GraphEmbedding/data/flight/labels-europe-airports.txt'
+edgeListFile = 'GraphEmbedding/data/flight/europe-airports.edgelist'
+labelFile = 'GraphEmbedding/data/flight/labels-europe-airports.txt'
 # edgeListFile = 'GraphEmbedding/data/flight/usa-airports.edgelist'
 # labelFile = 'GraphEmbedding/data/flight/labels-usa-airports.txt'
 
@@ -45,7 +45,7 @@ def plot_embeddings(embeddings,):
     for c, idx in color_idx.items():
         plt.scatter(node_pos[idx, 0], node_pos[idx, 1], label=c)
     plt.legend()
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
@@ -53,7 +53,7 @@ if __name__ == "__main__":
                          create_using=nx.Graph(), nodetype=None, data=[('weight', int)])
 
     for i in range(0, 10):
-        model = DeepWalk(G, walk_length=10, num_walks=80, workers=3)
+        model = DeepWalk(G, walk_length=10, num_walks=80, workers=1)
         model.train(window_size=5, iter=3)
         embeddings = model.get_embeddings()
 
