@@ -33,6 +33,8 @@ $$
 
 节点之间的拓扑信息有多种方法可以衡量，其中一种常用的方法为使用节点之间的距离表示节点之间的拓扑信息。即在原图中两个节点之间有邻接关系或者两个节点距离较近，在映射后在低维向量空间中对应两个向量的距离同样比较接近，在这里衡量两个向量距离的接近程度通常使用两个向量的内积。因此，当前节点对应的拓扑信息，可以使用其邻居节点进行表示。
 
+% TODO: 可以用最大似然法再做一下公式化，反映给定向量的映射方式使通过向量能够重现节点邻居的概率最大
+
 对于这一问题，DeepWalk 是其中一个最经典的方法，这个方法的思路和上述使用邻居节点表示节点的拓扑信息有异曲同工的地方。DeepWalk 使用的随机游走策略将在当前节点的邻居中等概率地选择下一个要访问节点，这实际上仅利用了节点之间的连接信息来提取节点序列，在一定程度上保留了节点的拓扑信息。虽然 DeepWalk 是 KDD 2014 的工作，但它为我们实现图嵌入提供了很好的思路，是我们了解图嵌入无法绕过的一个方法。
 
 \subsection{本文工作}
@@ -46,6 +48,47 @@ $$
 
 % TODO: 完成全篇再进行更新
 本文的其余部分安排如下。在第二节中，我们将介绍图嵌入算法的发展。在第三节中，我们将讲述Deepwalk算法原理和改进。在第四节中，我们将展示和分析实验结果。在第五节中，我们将做出总结并给出未来的改进方向。
+
+% TODO: 符号的相关表示。文案：文中用到的符号说明如下？\ref{notations}
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.1}
+\caption{Important Notations}
+\label{notations}
+\centering
+\begin{tabular}{|l|p{0.78\columnwidth}|}
+    % TODO: 图的表示 G=(V, E)，强调无向图？最大似然的相关表示：概率、映射方式等
+    % \hline
+    % \(V\) & 当前节点的邻接节点对应的点集 \\
+    \hline
+    % FIXME: 描述可能不太准确
+    \(u\) & DeepWalk 算法中随机游走讨论的当前节点 \\
+    \hline
+    \(V_u\) & 当前节点 \(u\) 对应邻接节点的点集 \\
+    \hline
+    \(v_i\) & 当前节点的邻接节点点集中下标为 \(i\) 的节点 \\
+    \hline
+    \(|n|\) & 节点 \(n\) 的度数，即 \(n\) 的邻接节点的个数 \\
+    \hline
+    % $b_n$ & Bandwidth of edge $n$ at time slot $t$ \\
+    % \hline
+    % $I$ & Idle period of hot start serverless function \\
+    % \hline
+    % $Q(t)$ & Number of cold start serverless function at time slot $t$ \\
+    % \hline
+    % $T_n^e$ & Computation time of edge $n$ \\
+    % \hline
+    % $T_m^s$ & Computation time of serverless function configuration $m$ \\
+    % \hline
+    % $T^c$ & Cold start time of serverless function container\\
+    % \hline
+    % $r(t)$ & Number of requests sent to cloud \\
+    % \hline
+    % $x_n(t)$ & Indicator of handling requests of edge $n$ at cloud at time $t$ \\
+    % \hline
+    % $y_{n,m}(t)$ & Indicator of handling requests of edge $n$ using serverless function configuration $m$ at time $t$ \\
+    % \hline
+\end{tabular}
+\end{table}
 
 \section{DeepWalk 方法的简单介绍}
 
@@ -68,19 +111,38 @@ $$
 
 DeepWalk 使用了类似的思想使用节点的邻居信息表示节点的拓扑信息。通过随机游走的方式对邻居节点进行采样获得对应的节点的拓扑信息。DeepWalk 创造性地将词嵌入方法 word2vec 引入到图嵌入中，结合上述的邻居节点信息得到节点和节点的共现关系，再用 word2vec 模型将节点的邻接信息看作词句，再学习使用将上述的邻居信息编码为向量形式。
 
-% TODO: 随机游走成立的原因（分布
+% TODO: 随机游走成立的原因（采样结果的分布，返回上一个节点的概率 etc
+% TODO: 不同超参对结果的影响：随机游走序列长度（维度）的影响，不同数据集可能的影响（过拟合、欠拟合
 
 % TODO: 使用 word2vec 和 NLP 的相似之处，幂律分布？
 
+\newpage
+
 \section{基于 DeepWalk 算法的进一步讨论}
 
-在上面的讨论中可以得知，DeepWalk 使用随机游走的方式对邻居节点进行采样，实现的效果为距离当前节点较近的邻居节点被采样的概率比较大，距离当前节点比较远的邻居节点被采样的概率比较小。根据这一特性，我们可以针对不同类型的图作出进一步的讨论，依据不同类型的图结构，选择合适的采样方法使得 DeepWalk 的准确率尽可能提升。
+在上面的讨论中可以得知，DeepWalk 使用随机游走的方式对邻居节点进行采样，实现的效果为距离当前节点较近的邻居节点被采样的概率比较大，距离当前节点比较远的邻居节点被采样的概率比较小。根据这一特性，我们可以对 DeepWalk 的采样策略进行详细的讨论，对不同类型的图作出进一步的讨论，依据不同类型的图结构，选择合适的采样方法使得 DeepWalk 的准确率尽可能提升。从采样策略和图的性质出发，我们提出了两个角度对采样策略进行讨论：基于图节点度数的改进方式、基于路径的改进方式。
 
 \subsection{基于度数对 DeepWalk 的讨论}
 
+考虑图的度数对 DeepWalk 采样策略的影响，由于随机游走策略是从当前节点随机选择一个邻接节点进行移动，然后在该邻接节点上继续迭代算法，我们可以得知不同的节点度数对 DeepWalk 的采样行为造成不同的结果。我们可以考虑如下场景：程序进行随机游走，如果新到达的节点的度数比较大，则程序随机游走选择往回行走，即前往上一个节点的概率比较小；相反如果新到达的节点度数比较大，则程序随机游走选择往回行走的概率比较小。
+
+根据上述的性质，我们可以设计不同的采样策略对度数较大的邻接节点和度数较小的邻接节点进行一定的权衡比较。我们可以依据这一想法，设计出依据当前节点的邻接节点度数对选择下一个游走节点的概率进行调整的两种方法：优先选择度数更大的邻接节点、优先选择度数更小的邻接节点。
+
+% TODO: 适用的图和意义不知道放哪里比较合适
+
+设计优先选择度数较大的邻接节点，可以很容易可以想到实现的思路。我们可以直接依据不同节点的度数占比作为选择节点的概率，可以使用以下公式进行表述，其中 \(p(v_i)\) 为选择节点 \(v_i\) 作为随机游走的目标点的概率：
+
+$$
+p(v_i) = \frac{|v_i|}{\sum_{j=1}^{|u|} |v_j|}, \;\forall v_i, v_j \in V_u
+$$
+
+设计优先选择度数较小的邻接节点，有多种概率映射的方式，只要最终达到概率和邻接节点的度数呈负相关即可。我们依据取相反数和取倒数两个角度，提出了以下三种映射方式：
+
+\subsection{基于度数讨论的结果分析}
+
 \subsection{基于路径对 DeepWalk 的讨论}
 
-\section{实验结果与分析}
+\subsection{基于路径讨论的结果分析}
 
 \section{相关工作陈述}
 
